@@ -1,7 +1,8 @@
-defmodule FS.SpawnSupervisorTest do
+defmodule FS.CreateSpawnerTest do
 	use ExUnit.Case, async: true
 	
-	test "spawn Supervisor Process" do
-		IO.puts("Attempting to spawn supervisor.")	
+	setup do
+		spawner = start_supervised!(KV.Spawner)
+		%{spawner: spawner}
 	end
 end

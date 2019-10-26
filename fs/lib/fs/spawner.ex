@@ -1,6 +1,15 @@
 defmodule FS.Spawner do
 	use GenServer
 
+	@doc """
+	Starts the spawner.
+	"""
+
+	def start_link(opts) do
+		GenServer.start_link(__MODULE__, :ok, opts)
+	end
+	
+
 	@impl true
 	def init(:ok) do
 		{:ok, %{}}
