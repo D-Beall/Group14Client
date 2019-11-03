@@ -1,20 +1,9 @@
-defmodule FS.Spawner do
+defmodule FS.Test do
   use GenServer
-
-  @doc """
-  Starts the spawner.
-  """
-
   def start_link(opts) do
+    # Node.list()
+    # IO.puts "called #{}"
     GenServer.start_link(__MODULE__, :ok, opts)
-  end
-
-  @doc """
-  Spawn the supervisor process.
-  """
-
-  def start_supervisor(server, name) do
-    GenServer.cast(server, {:create, name})
   end
 
   @impl true
@@ -29,7 +18,7 @@ defmodule FS.Spawner do
 
   @impl true
   def handle_cast({:create, _name}, _names) do
-		# {:ok, supervisor} = KV.Supervisor.start_link([])
     {:noreply, "Got cast."}
   end
+
 end
