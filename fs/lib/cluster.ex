@@ -14,7 +14,7 @@ defmodule Cluster do
     ]
     children = [
       {Cluster.Supervisor, [topologies, [name: Cluster ]]},
-      FS.Test
+      {Task.Supervisor, name: FS.TaskSupervisor},
     ]
     Supervisor.start_link(children, strategy: :one_for_one, name: MyApp.Supervisor)
   end
