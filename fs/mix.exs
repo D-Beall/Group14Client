@@ -14,7 +14,8 @@ defmodule FS.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger, :cowboy, :plug, :poison],
+			mod: {SimpleServer.Application, []},
     ]
   end
 
@@ -26,6 +27,9 @@ defmodule FS.MixProject do
 				{:mint, "~> 1.0"},
 				{:uuid, "~> 1.1"},
 				{:json, "~> 1.3"},
+				{:cowboy, "~> 1.0.0"},
+				{:plug, "~> 1.5"},
+				{:poison, "~> 3.1"},
     ]
   end
 end

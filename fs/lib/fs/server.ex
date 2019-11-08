@@ -1,5 +1,5 @@
 defmodule FS.Server do
-	def connect do
-		IO.puts("server")
+	def start do
+		IO.puts("server started")
 	end
 end

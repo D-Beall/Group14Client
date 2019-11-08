@@ -22,6 +22,18 @@ defmodule FS.Client do
 		end
 	end
 
+	def get_status(responses) do
+		#Function to return the return status of an http request.
+		#responses- list of responses given from a Mint.HTTP.stream
+		for response <- responses do
+			case response do
+			#Status code
+			{:status, _request_ref, status_code}->
+			{:status, status_code}
+			end
+		end
+	end
+
 	def get do
 		#connect to server
 		{:ok, conn} = Mint.HTTP.connect(:http, "xzy3.cs.seas.gwu.edu", 8085)
