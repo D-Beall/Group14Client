@@ -3,28 +3,31 @@ defmodule FS do
     TODO
     code for searching audio on remote node
   """
-  def search(_requested_audio, from) do
+  def remote_search(_requested_audio, from) do
     IO.puts("search for audio")
-    receive_search_response(from, "requested audio")
+    # example code to read a file
+    file = File.read!('files/test_file.txt')
+    send_file(from, file)
   end
 
   @doc """
     TODO
     code for writing audio on local node
   """
-  def write_file(_response) do
-    IO.puts("audio file received")
+  def write_file(file) do
+    # example working code to write the file in tmp folder
+    File.write!("tmp/test_file.txt", file)
   end
 
   @doc """
   the method that is called when sending a search request to a remote node
   """
   def send_search_request(recipient, requested_audio) do
-    spawn_task(__MODULE__, :search, recipient, [requested_audio, Node.self()])
+    spawn_task(__MODULE__, :remote_search, recipient, [requested_audio, Node.self()])
   end
 
-  def receive_search_response(recipient, response) do
-    spawn_task(__MODULE__, :write_file, recipient, [response])
+  def send_file(recipient, file) do
+    spawn_task(__MODULE__, :write_file, recipient, [file])
   end
 
   @doc """
