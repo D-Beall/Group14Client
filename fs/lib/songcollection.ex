@@ -16,13 +16,25 @@ defmodule SongCollection do
     IO.write(file, "hello,world")
   end
   def read() do
-    [:ok, songs] = "../files/song.csv"
+    songs = "../files/song.csv"
     |> Path.expand(__DIR__)
     |> File.stream!
     |> CSV.decode(separator: ?,, headers: [:Arist, :Song])
     |> Enum.to_list()
     IO.inspect(songs)
-    # [:ok, list] = for {:ok, n } <- songs, do: Map.fetch(n, :Song)
+		#TODO get artist and song from function parameter.
+		wanted_song = "NA"
+		wanted_artist = "NA"
+    list = for {:ok, n } <- songs do
+				if Map.fetch(n, :Artist) == wanted_artist && Map.fetch(n, :Song) == wanted_song do
+					IO.puts("FOUND")
+					#TODO send file to requester.
+				else 
+					IO.puts("NO MATCH")
+					#TODO tell requester no such song on this user.
+				end
+		end
+
     # IO.inspect(list)
   end
 
