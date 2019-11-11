@@ -3,8 +3,11 @@ defmodule FS do
     TODO
     code for searching audio on remote node
   """
-  def remote_search(_requested_audio, from) do
+  def remote_search(requested_audio, from) do
     IO.puts("search for audio")
+		case SongCollection.read(requested_audio) do 
+			{:ok, song } -> #TODO send response that we have the file. 
+			{:NA} -> #TODO send response that we don't have the file.
     # example code to read a file
     file = File.read!('files/test_file.txt')
     send_file(from, file)
