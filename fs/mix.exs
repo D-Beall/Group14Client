@@ -22,7 +22,8 @@ defmodule FS.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:libcluster, "~> 3.1"}
+      {:libcluster, "~> 3.1"},
+      {:csv, "~> 2.3"}
     ]
   end
 end
