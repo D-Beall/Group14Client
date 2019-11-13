@@ -1,14 +1,4 @@
 defmodule SongCollection do
-  # use CSV
-  def init() do
-    {:ok, %{}}
-    # File.mkdir!("files")
-    # File.cd!("files")
-    # File.touch!("song.csv")
-    {:ok, file} = File.open("files/song.txt", [:write])
-    # IO.puts("hello from init")
-    IO.write(file, "hello,world")
-  end
   def write() do
     {:ok, file} = File.open("files/song.txt", [:write])
     # IO.puts("hello from init")
@@ -18,16 +8,21 @@ defmodule SongCollection do
 		#Search our song.csv for the song and artist requested.
 		#Input: song_info- dictionary of Artist and Song of the
 		#request information.
-		wanted_song = Map.fetch(song_info, :Song)
-		wanted_artist = Map.fetch(song_info, :Artist)
-    songs = "../files/song.csv"
+		wanted_song = song_info[:Song]
+		wanted_artist = song_info[:Artist]
+    song = "../files/song.csv"
     |> Path.expand(__DIR__)
     |> File.stream!
     |> CSV.decode(separator: ?,, headers: [:Artist, :Song])
     |> Enum.to_list()
-		|> Enum.map(fn(x)->x[:ok][:Artist] end)
-		#|> Enum.map(fn(x)->x[:ok][:Artist] == wanted_artist && x[:ok][:Song] == wanted_song end)
-    IO.inspect(songs)
+    |> Enum.find(fn(x)->
+      {:ok, track_info } = x
+      artist = track_info[:Artist]
+      song  = track_info[:Song]
+      artist == wanted_artist && song == wanted_song
+    end
+    )
+    # |> Enum.reduce( fn ->
+    # end)
   end
-
 end
