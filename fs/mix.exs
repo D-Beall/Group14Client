@@ -15,7 +15,6 @@ defmodule FS.MixProject do
   def application do
     [
       extra_applications: [:logger, :cowboy, :plug, :poison],
-			mod: {SimpleServer.Application, []},
     ]
   end
 
