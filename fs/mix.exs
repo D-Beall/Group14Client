@@ -15,10 +15,10 @@ defmodule FS.MixProject do
   def application do
     [
       extra_applications: [:logger, :cowboy, :plug, :poison],
+      mod: {Cluster, []}
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       # {:dep_from_hexpm, "~> 0.3.0"},
@@ -29,6 +29,7 @@ defmodule FS.MixProject do
 				{:cowboy, "~> 1.0.0"},
 				{:plug, "~> 1.5"},
 				{:poison, "~> 3.1"},
+      	{:libcluster, "~> 3.1"}
     ]
   end
 end
