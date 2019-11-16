@@ -1,8 +1,10 @@
 defmodule FS do
   def remote_search(requested_audio) do
     IO.puts("search for audio")
-    # case SongCollection.read(requested_audio) do
-    {:ok, "Radiohead Paranoid Android.mp3", Node.self()}
+    case SongCollection.read(requested_audio) do
+		{:ok, file_name} -> {:ok, file_name, Node.self()} 
+		{:NA}-> {:NA}
+		end
   end
 
   def remote_read_file(file_name) do
@@ -23,7 +25,7 @@ defmodule FS do
   def parse_search_response(response) do
     case response do
       {:ok, file_name, node_with_the_file} -> send_read_file(node_with_the_file, file_name)
-      {:NA} -> IO.puts("Ends here")
+      {:NA} -> {:ok}
     end
   end
 

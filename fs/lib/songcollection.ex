@@ -22,7 +22,9 @@ defmodule SongCollection do
       artist == wanted_artist && song == wanted_song
     end
     )
-    # |> Enum.reduce( fn ->
-    # end)
+		case song do
+		 {:ok, info} -> {:ok,"#{info[:Artist]}-#{info[:Song]}"}
+			_->{:NA}
+		end
   end
 end
