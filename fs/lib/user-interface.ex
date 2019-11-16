@@ -44,10 +44,14 @@ defmodule UI do
 	song = String.trim(song) 
 
 	#Try to search local network for file
-
-	#Download file from server
-	FS.Client.server_download()
-
+	cluster_response = FS.search_network()
+	case cluster_response do
+		:ok -> IO.puts("File found on local network") 
+		:SONG_NOT_FOUND ->
+			#Download file from server
+			FS.Client.server_download()
+		_->IO.puts("Possible error has occured please try again.")
+	end
 	end
 	
 
