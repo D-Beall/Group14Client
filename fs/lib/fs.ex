@@ -2,7 +2,7 @@ defmodule FS do
   def remote_search(requested_audio) do
     IO.puts("search for audio")
     response = SongCollection.read(requested_audio)
-    Tuple.insert_at(response, 2, Node.self())
+    Tuple.append(response, Node.self())
   end
 
   def remote_read_file(file_name) do
