@@ -44,7 +44,7 @@ defmodule UI do
 	song = String.trim(song) 
 
 	#Try to search local network for file
-	cluster_response = FS.search_network()
+	cluster_response = FS.search_network(%{Artist: "#{artist}", Song: "#{song}"})
 	case cluster_response do
 		:ok -> IO.puts("File found on local network") 
 		:SONG_NOT_FOUND ->
