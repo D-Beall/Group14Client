@@ -42,7 +42,9 @@ defmodule UI do
 	artist = String.trim(artist) 
 	song = IO.gets("Enter song/book title: ")
 	song = String.trim(song) 
+
 	#Try to search local network for file
+
 	#Download file from server
 	FS.Client.server_download()
 
