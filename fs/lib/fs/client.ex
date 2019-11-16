@@ -28,6 +28,7 @@ defmodule FS.Client do
 			#Headers
 				{:headers, _request_ref, headers}->
 				case request do
+				{:download} -> IO.puts("Headers Received.")	
 				_ ->IO.puts("> Response headers: #{inspect(headers)}")
 				end
 
@@ -35,7 +36,7 @@ defmodule FS.Client do
 				{:data, _request_ref, data}->
 				case request do
 				#Download post request
-				{:download} -> IO.puts("DOWNLOAD")
+				{:download} ->
 				split = String.split(data)
 				url = Enum.at(split,1)
 				System.cmd("wget",["-P","./files/",url])
@@ -125,9 +126,14 @@ defmodule FS.Client do
 		#receive message
 		receive do
 			message ->
-				IO.inspect(message, label: :message)
-				{:ok, _conn, responses} = Mint.HTTP.stream(conn, message)
-				handle_responses(responses,{:download})
+				#IO.inspect(message, label: :message)
+				#{:ok, _conn, responses} = Mint.HTTP.stream(conn, message)
+				x = Mint.HTTP.stream(conn, message)
+				case x do
+				{:ok, _conn, responses}->handle_responses(responses,{:download})
+				{:error, _conn, reason, _responses}->IO.inspect(reason)
+				:unkown->IO.puts("Message is not from conn socket.")
+				end
 		end
 	end
 
