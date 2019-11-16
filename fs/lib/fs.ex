@@ -1,8 +1,8 @@
 defmodule FS do
   def remote_search(requested_audio) do
     IO.puts("search for audio")
-    # case SongCollection.read(requested_audio) do
-    {:ok, "Radiohead Paranoid Android.mp3", Node.self()}
+    response = SongCollection.read(requested_audio)
+    Tuple.insert_at(response, 2, Node.self())
   end
 
   def remote_read_file(file_name) do
@@ -16,31 +16,36 @@ defmodule FS do
   """
   def write_file(response) do
     # example working code to write the file in tmp folder
-    {file_name, file } = response
+    {file_name, file} = response
     File.write!('tmp/#{file_name}', file)
   end
-  def search() do
-    nodes = Enum.map(Node.list, fn node -> send_search_request(node, %{Artist: "Radiohead", Song: "Paranoid Android" }) end)
-    IO.inspect(nodes)
-  end
-  def parse_search_response(response) do
+
+  def search_network(requested_audio) do
+    response =
+      Stream.map(Node.list(), fn node -> search_request(node, requested_audio) end)
+      |> Enum.to_list()
+      |> List.first()
+
     case response do
-      {:ok, file_name, node_with_the_file} -> send_read_file(node_with_the_file, file_name)
-      {:NA} -> IO.puts("Ends here")
+      {:ok, file_name, node_with_the_file} ->
+        read_and_write_file(node_with_the_file, file_name)
+
+      _ ->
+        :SONG_NOT_FOUND
     end
   end
 
   @doc """
   the method that is called when sending a search request to a remote node
   """
-  def send_search_request(recipient, requested_audio) do
+  def search_request(recipient, requested_audio) do
     spawn_task(__MODULE__, :remote_search, recipient, [requested_audio])
-    # parse_search_response(response)
   end
 
-  def send_read_file(recipient, file_name) do
+  def read_and_write_file(recipient, file_name) do
     response = spawn_task(__MODULE__, :remote_read_file, recipient, [file_name])
     write_file(response)
+    {:ok}
   end
 
   @doc """
