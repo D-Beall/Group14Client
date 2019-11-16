@@ -22,7 +22,10 @@ defmodule FS do
 
   def search_network(requested_audio) do
     response =
-      Stream.map(Node.list(), fn node -> search_request(node, requested_audio) end)
+      Stream.filter(Node.list(), fn node ->
+        String.match?(Atom.to_string(node), ~r/localhost/iu)
+      end)
+      |> Stream.map(fn node -> search_request(node, requested_audio) end)
       |> Enum.to_list()
       |> List.first()
 
