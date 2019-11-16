@@ -16,6 +16,12 @@ defmodule Cluster do
       {Cluster.Supervisor, [topologies, [name: Cluster ]]},
       {Task.Supervisor, name: FS.TaskSupervisor},
     ]
+    init()
     Supervisor.start_link(children, strategy: :one_for_one, name: MyApp.Supervisor)
+  end
+  defp init() do
+    path = IO.inspect(Path.expand("~"))
+    File.mkdir('#{path}/.songs')
+    File.touch('#{path}/.songs.csv')
   end
 end

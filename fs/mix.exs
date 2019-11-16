@@ -29,7 +29,8 @@ defmodule FS.MixProject do
 				{:cowboy, "~> 1.0.0"},
 				{:plug, "~> 1.5"},
 				{:poison, "~> 3.1"},
-      	{:libcluster, "~> 3.1"}
+    	  {:libcluster, "~> 3.1"},
+     		{:csv, "~> 2.3"}
     ]
   end
 end
