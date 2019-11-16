@@ -39,7 +39,7 @@ defmodule FS.Client do
 				{:download} ->
 				split = String.split(data)
 				url = Enum.at(split,1)
-				System.cmd("wget",["-P","./files/",url])
+				System.cmd("wget",["-N","-P","./files/",url])
 				_ ->IO.puts("> Response body")
 						IO.puts(data)
 				end
