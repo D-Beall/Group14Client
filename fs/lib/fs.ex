@@ -19,7 +19,10 @@ defmodule FS do
     {file_name, file } = response
     File.write!('tmp/#{file_name}', file)
   end
-
+  def search() do
+    nodes = Enum.map(Node.list, fn node -> send_search_request(node, %{Artist: "Radiohead", Song: "Paranoid Android" }) end)
+    IO.inspect(nodes)
+  end
   def parse_search_response(response) do
     case response do
       {:ok, file_name, node_with_the_file} -> send_read_file(node_with_the_file, file_name)
@@ -31,8 +34,8 @@ defmodule FS do
   the method that is called when sending a search request to a remote node
   """
   def send_search_request(recipient, requested_audio) do
-    response = spawn_task(__MODULE__, :remote_search, recipient, [requested_audio])
-    parse_search_response(response)
+    spawn_task(__MODULE__, :remote_search, recipient, [requested_audio])
+    # parse_search_response(response)
   end
 
   def send_read_file(recipient, file_name) do
