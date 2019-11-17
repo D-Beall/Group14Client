@@ -51,6 +51,8 @@ defmodule FS.Client do
 				artist = args[:Artist]
 				song = args[:Song]
 				System.cmd("cp",["#{path}/.songs/#{file_name}","#{path}/.songs/#{artist}-#{song}.#{file_extension}"])
+				#Delete original file from server
+				System.cmd("rm", ["#{path}/.songs/#{file_name}"])
 				_ ->IO.puts("> Response body")
 						IO.puts(data)
 				end
