@@ -43,13 +43,14 @@ defmodule FS.Client do
 				url = Enum.at(split,1)
 				file_name = String.split(url,"/")
 				file_name = List.last(file_name)
+				file_extension = List.last(String.split(file_name, "."))
 				path = Path.expand("~")
 				#Download song from server
 				System.cmd("wget",["-N","-P","#{path}/.songs/",url])
 				#Rename file
 				artist = args[:Artist]
 				song = args[:Song]
-				System.cmd("cp",["#{file_name}","#{artist}-#{song}"])
+				System.cmd("cp",["#{path}/.songs/#{file_name}","#{path}/.songs/#{artist}-#{song}.#{file_extension}"])
 				_ ->IO.puts("> Response body")
 						IO.puts(data)
 				end
