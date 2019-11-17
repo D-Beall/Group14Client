@@ -5,7 +5,7 @@ defmodule FS.Client do
 		#song_info- Dictionary of :Artist and :Song to update file with.
 		song = song_info[:Song]
 		artist = song_info[:Artist]
-		path = Path.expand("-")
+		path = Path.expand("~")
 		{:ok, file} = File.open("#{path}/.songs.csv", [:append])
 		IO.binwrite(file,"#{artist},#{song}")
 		IO.binwrite(file,'\n')
@@ -13,10 +13,11 @@ defmodule FS.Client do
 	
 	end
 
-	def handle_responses(responses,request) do
+	def handle_responses(responses,request,args) do
 		#Function to handle the responses from the server.
 		#responses- list of responses given from a Mint.HTTP.stream
 		#request- which request is calling the function.i.e. download etc.
+		#args- additional data required to handle a response. 
 		for response <- responses do
 			case response do
 
@@ -40,7 +41,15 @@ defmodule FS.Client do
 				{:download} ->
 				split = String.split(data)
 				url = Enum.at(split,1)
-				System.cmd("wget",["-N","-P","./files/",url])
+				file_name = String.split(url,"/")
+				file_name = List.last(file_name)
+				path = Path.expand("~")
+				#Download song from server
+				System.cmd("wget",["-N","-P","#{path}/.songs/",url])
+				#Rename file
+				artist = args[:Artist]
+				song = args[:Song]
+				System.cmd("cp",["#{file_name}","#{artist}-#{song}"])
 				_ ->IO.puts("> Response body")
 						IO.puts(data)
 				end
@@ -58,27 +67,6 @@ defmodule FS.Client do
 		end
 	end
 
-	def get_status(responses) do
-		#Function to return the return status of an http request.
-		#responses- list of responses given from a Mint.HTTP.stream
-		for response <- responses do
-			case response do
-			#Error
-			{:error, _request_ref, error_code}->
-			IO.puts("> Error code #{error_code}")
-			#Status code
-			{:status, _request_ref, status_code}->
-			IO.puts("> Response status code #{status_code}")
-			#Headers
-			{:headers, _request_ref, _headers}->nil
-			#Data
-			{:data, _request_ref, _data}-> nil
-
-			{:done, _request_ref} ->nil
-			end
-		end
-	end
-
 	def get do
 		#connect to server
 		{:ok, conn} = Mint.HTTP.connect(:http, "xzy3.cs.seas.gwu.edu", 8085)
@@ -91,51 +79,51 @@ defmodule FS.Client do
 		receive do
 			message ->
 				{:ok, _conn, responses} = Mint.HTTP.stream(conn, message)
-				handle_responses(responses,{:get})
+				handle_responses(responses,{:get},{})
 		end
 		Mint.HTTP.close(conn)
 	end
 
-	def post do
-		#generate UUID/cookie
-		id = UUID.uuid1()
-		cook = UUID.uuid1()#may need to use other UUID function
-		#convert to JSON
-		list = [uuid: id, cookie: cook]
+	@doc """
+	Attempts to call http request to the server.
+	Requests the urls to use to request a file from the server.
+	
+	artist- string of artist/author name.
+	song- string of title of song/book etc.
+	"""
+	def server_download(artist, song) do
+		IO.puts("Server download.")
+		list = [song_name: "#{song}"]
 		{_status, result} = JSON.encode(list)
 		#connect to server
-		{:ok, conn} = Mint.HTTP.connect(:http, "xzy3.cs.seas.gwu.edu", 8085)
-		#send post request with json data
-		{:ok, conn, _request_ref} = Mint.HTTP.request(conn, "POST", "/post", [{"content-type", "application/json"}], result)
-		#receive message
-		receive do
-			message ->
-				IO.inspect(message, label: :message)
-				{:ok, _conn, responses} = Mint.HTTP.stream(conn, message)
-				IO.inspect(responses, label: :responses)
+		server_conn = Mint.HTTP.connect(:http, "xzy3.cs.seas.gwu.edu", 8085)
+		case server_conn do
+			{:ok, conn}->
+				#send post request with json data
+				{:ok, conn, _request_ref} = Mint.HTTP.request(conn, "POST", "/download", [{"content-type", "application/json"}], result)
+				#receive message
+				receive do
+					message ->
+					x = Mint.HTTP.stream(conn, message)
+						case x do
+							{:ok, _conn, responses}->handle_responses(responses,{:download},%{Artist: "#{artist}", Song: "#{song}"})
+
+							{:error, _conn, reason, _responses}->IO.inspect(reason)
+
+							:unkown->IO.puts("Message is not from conn socket.")
+						end
+				end
+			{:error, reason}->IO.puts("Error received. Can not connect to server.")
 		end
 	end
 
-	def server_download do
-		IO.puts("Server download.")
-		list = [song_name: "song"]
-		{_status, result} = JSON.encode(list)
+	@doc """
+	Makes get request to the server to receive files.
+	"""	
+	def get_files(_url) do
 		#connect to server
-		{:ok, conn} = Mint.HTTP.connect(:http, "xzy3.cs.seas.gwu.edu", 8085)
-		#send post request with json data
-		{:ok, conn, _request_ref} = Mint.HTTP.request(conn, "POST", "/download", [{"content-type", "application/json"}], result)
-		#receive message
-		receive do
-			message ->
-				#IO.inspect(message, label: :message)
-				#{:ok, _conn, responses} = Mint.HTTP.stream(conn, message)
-				x = Mint.HTTP.stream(conn, message)
-				case x do
-				{:ok, _conn, responses}->handle_responses(responses,{:download})
-				{:error, _conn, reason, _responses}->IO.inspect(reason)
-				:unkown->IO.puts("Message is not from conn socket.")
-				end
-		end
+		#{:ok, _conn} = Mint.HTTP.connect(:http, "xzy3.cs.seas.gwu.edu", 8085)
+
 	end
 
 end

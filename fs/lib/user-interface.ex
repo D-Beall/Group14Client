@@ -49,7 +49,7 @@ defmodule UI do
 		:ok -> IO.puts("File found on local network") 
 		:SONG_NOT_FOUND ->
 			#Download file from server
-			FS.Client.server_download()
+			FS.Client.server_download(artist,song)
 		_->IO.puts("Possible error has occured please try again.")
 	end
 	end
