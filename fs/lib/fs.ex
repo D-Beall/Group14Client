@@ -1,12 +1,13 @@
 defmodule FS do
   def remote_search(requested_audio) do
-    IO.puts("search for audio")
+    IO.puts("searching for audio")
     response = SongCollection.read(requested_audio)
     Tuple.append(response, Node.self())
   end
 
   def remote_read_file(file_name) do
-    file = File.read!('files/#{file_name}')
+    path = Path.expand('~')
+    file = File.read!('#{path}/.songs/#{file_name}')
     {file_name, file}
   end
 
@@ -17,22 +18,24 @@ defmodule FS do
   def write_file(response) do
     # example working code to write the file in tmp folder
     {file_name, file} = response
-    File.write!('tmp/#{file_name}', file)
+    path = Path.expand('~')
+    File.write!('#{path}/.songs/#{file_name}', file)
   end
 
   def search_network(requested_audio) do
     response =
-      Stream.filter(Node.list(), fn node ->
-        String.match?(Atom.to_string(node), ~r/localhost/iu)
-      end)
-      |> Stream.map(fn node -> search_request(node, requested_audio) end)
-      |> Enum.to_list()
-      |> List.first()
+    Stream.filter(Node.list(), fn node ->
+      String.match?(Atom.to_string(node), ~r/localhost/iu)
+    end)
+    |> Stream.map(fn node -> search_request(node, requested_audio) end)
+    |> Enum.to_list()
+    |> List.first()
 
     case response do
       {:ok, file_name, node_with_the_file} ->
         read_and_write_file(node_with_the_file, file_name)
-
+        SongCollection.write(requested_audio)
+        {:ok}
       _ ->
         :SONG_NOT_FOUND
     end
@@ -48,7 +51,6 @@ defmodule FS do
   def read_and_write_file(recipient, file_name) do
     response = spawn_task(__MODULE__, :remote_read_file, recipient, [file_name])
     write_file(response)
-    {:ok}
   end
 
   @doc """
