@@ -5,7 +5,8 @@ defmodule FS.Client do
 		#song_info- Dictionary of :Artist and :Song to update file with.
 		song = song_info[:Song]
 		artist = song_info[:Artist]
-		{:ok, file} = File.open("./files/song.csv", [:append])
+		path = Path.expand("-")
+		{:ok, file} = File.open("#{path}/.songs.csv", [:append])
 		IO.binwrite(file,"#{artist},#{song}")
 		IO.binwrite(file,'\n')
 		File.close(file) 
