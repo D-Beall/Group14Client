@@ -20,7 +20,7 @@ defmodule Cluster do
     Supervisor.start_link(children, strategy: :one_for_one, name: MyApp.Supervisor)
   end
   defp init() do
-    path = IO.inspect(Path.expand("~"))
+    path = Path.expand("~")
     File.mkdir('#{path}/.songs')
     File.touch('#{path}/.songs.csv')
   end
