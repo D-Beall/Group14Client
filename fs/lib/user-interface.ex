@@ -23,10 +23,19 @@ defmodule UI do
 		case r do
 		
 		"download"-> download()
+		get_response(:continue)
 
 		"help" -> IO.puts("download: Attempted to download audio file.")	
 		IO.puts("help: List possible commands.")	
+		IO.puts("list-files: List local audio files.")	
 		IO.puts("exit: Quit the application.")	
+		get_response(:continue)
+
+		"list-files" -> IO.puts("Audio Files:")
+		IO.puts("Artist/Author,Title")	
+    path = Path.expand('~')
+		IO.puts(File.read!("#{path}/.songs.csv"))
+		File.close("#{path}/.songs.csv")
 		get_response(:continue)
 
 		"exit" -> get_response(:exit)
@@ -44,10 +53,14 @@ defmodule UI do
 	song = String.trim(song) 
 
 	#Try to search local network for file
-
-	#Download file from server
-	FS.Client.server_download()
-
+	cluster_response = FS.search_network(%{Artist: "#{artist}", Song: "#{song}"})
+	case cluster_response do
+		:ok -> IO.puts("File found on local network") 
+		:SONG_NOT_FOUND ->
+			#Download file from server
+			FS.Client.server_download(artist,song)
+		_->IO.puts("Possible error has occured please try again.")
+	end
 	end
 	
 
