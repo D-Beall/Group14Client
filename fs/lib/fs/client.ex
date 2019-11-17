@@ -1,18 +1,5 @@
 defmodule FS.Client do
 
-	def update_songs(song_info) do
-		#Updates the song.csv file in the files directory.
-		#song_info- Dictionary of :Artist and :Song to update file with.
-		song = song_info[:Song]
-		artist = song_info[:Artist]
-		path = Path.expand("~")
-		{:ok, file} = File.open("#{path}/.songs.csv", [:append])
-		IO.binwrite(file,"#{artist},#{song}")
-		IO.binwrite(file,'\n')
-		File.close(file) 
-	
-	end
-
 	def handle_responses(responses,request,args) do
 		#Function to handle the responses from the server.
 		#responses- list of responses given from a Mint.HTTP.stream
@@ -53,6 +40,8 @@ defmodule FS.Client do
 				System.cmd("cp",["#{path}/.songs/#{file_name}","#{path}/.songs/#{artist}-#{song}.#{file_extension}"])
 				#Delete original file from server
 				System.cmd("rm", ["#{path}/.songs/#{file_name}"])
+				#Update .songs.csv
+				SongCollection.write(%{Artist: "#{artist}", Song: "#{song}"})
 				_ ->IO.puts("> Response body")
 						IO.puts(data)
 				end
