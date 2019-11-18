@@ -4,7 +4,7 @@ Peer Audio Sharing is a desktop application in Elixir used to share audio files 
 ### Technologies Used
 Language: Elixir
 
-Client-side: Json
+Client-side: Json, mint, libcluster, CSV
 
 Database: Sqlite3
 
