@@ -1,6 +1,6 @@
 defmodule FS.Client do
 
-	def handle_responses(responses,request,args) do
+	def handle_responses(responses,request,_args) do
 		#Function to handle the responses from the server.
 		#responses- list of responses given from a Mint.HTTP.stream
 		#request- which request is calling the function.i.e. download etc.
@@ -26,22 +26,14 @@ defmodule FS.Client do
 				case request do
 				#Download post request
 				{:download} ->
-				split = String.split(data)
-				url = Enum.at(split,1)
-				file_name = String.split(url,"/")
-				file_name = List.last(file_name)
-				file_extension = List.last(String.split(file_name, "."))
-				path = Path.expand("~")
-				#Download song from server
-				System.cmd("wget",["-N","-P","#{path}/.songs/",url])
-				#Rename file
-				artist = args[:Artist]
-				song = args[:Song]
-				System.cmd("cp",["#{path}/.songs/#{file_name}","#{path}/.songs/#{artist}-#{song}.#{file_extension}"])
-				#Delete original file from server
-				System.cmd("rm", ["#{path}/.songs/#{file_name}"])
-				#Update .songs.csv
-				SongCollection.write(%{Artist: "#{artist}", Song: "#{song}"})
+				#Resp contains list of dictionaries
+				resp = JSON.decode!(data)
+				IO.inspect(resp)
+				size = Kernel.length(resp)
+				case size do
+					0 -> IO.puts("No such audio file on server.")
+					_-> get_files(resp,size) 
+				end
 				_ ->IO.puts("> Response body")
 						IO.puts(data)
 				end
@@ -85,7 +77,7 @@ defmodule FS.Client do
 	"""
 	def server_download(artist, song) do
 		IO.puts("Server download.")
-		list = [song_name: "#{song}"]
+		list = [song_name: "#{song}", artist: "#{artist}"]
 		{_status, result} = JSON.encode(list)
 		#connect to server
 		server_conn = Mint.HTTP.connect(:http, "xzy3.cs.seas.gwu.edu", 8085)
@@ -105,17 +97,45 @@ defmodule FS.Client do
 							:unkown->IO.puts("Message is not from conn socket.")
 						end
 				end
-			{:error, reason}->IO.puts("Error received. Can not connect to server.")
+			{:error, _reason}->IO.puts("Error received. Can not connect to server.")
 		end
 	end
 
 	@doc """
 	Makes get request to the server to receive files.
+	files-List of dictionaries with files to call get request on.
+	size- Length of files if 1 don't make directory in .songs.
+	file- artist: url: title:
 	"""	
-	def get_files(_url) do
-		#connect to server
-		#{:ok, _conn} = Mint.HTTP.connect(:http, "xzy3.cs.seas.gwu.edu", 8085)
-
+	def get_files(files,size) do
+		title = List.first(files)["title"]
+		artist = List.first(files)["artist"]
+		if size > 1 do
+			path = Path.expand("~")
+			System.cmd("mkdir", ["#{path}/.songs/#{title}"])
+		end
+		for file <- files do
+				url = file["url"]
+				file_name = String.split(url,"/")
+				file_name = List.last(file_name)
+				id = Enum.at(String.split(file_name,"-"), 1) #get book id
+				file_extension = List.last(String.split(file_name, "."))
+				path = Path.expand("~")
+				#Download song from server
+				case size do
+					1-> System.cmd("wget",["-N","-P","#{path}/.songs/",url])
+					_-> 
+				System.cmd("wget",["-N","-P","#{path}/.songs/#{title}",url])
+				end
+				##Rename file
+				#System.cmd("cp",["#{path}/.songs/#{file_name}","#{path}/.songs/#{artist}-#{song}.#{file_extension}"])
+				##Delete original file from server
+				#System.cmd("rm", ["#{path}/.songs/#{file_name}"])
+				##Update .songs.csv
+				IO.puts("Artist: #{artist}, Title: #{title}")
+		end
+				SongCollection.write(%{Artist: "#{artist}", Song: "#{title}"})
+#		Mint.HTTP.close(conn)
 	end
 
 end

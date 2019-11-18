@@ -57,6 +57,7 @@ defmodule UI do
 	case cluster_response do
 		:ok -> IO.puts("File found on local network") 
 		:SONG_NOT_FOUND ->
+			IO.puts("File not found on local network") 
 			#Download file from server
 			FS.Client.server_download(artist,song)
 		_->IO.puts("Possible error has occured please try again.")
