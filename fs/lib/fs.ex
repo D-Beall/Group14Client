@@ -14,7 +14,7 @@ defmodule FS do
         files = Enum.map(file_list, fn file -> %{file_name: file, file: File.read!('#{path}/.songs/#{file_name}/#{file}')} end)
         {file_name, files, isDir }
       false ->
-        files = [%{file_name: file_name, file: File.read!('#{path}/.songs/#{file_name}')}]
+        files = [%{file_name: file_name, file: File.read!('#{path}/.songs/#{file_name}.mp3')}]
         {file_name, files, isDir }
     end
   end
@@ -33,7 +33,7 @@ defmodule FS do
         Enum.map(files, fn file -> File.write!('#{path}/.songs/#{file_name}/#{file[:file_name]}', file[:file]) end)
       false ->
         file = List.first(files)
-        File.write!('#{path}/.songs/#{file_name}', file[:file])
+        File.write!('#{path}/.songs/#{file_name}.mp3', file[:file])
     end
   end
 
