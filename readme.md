@@ -25,7 +25,7 @@ To run this application, it is necessary to install Elixir on the desktop. You c
 * Step 9: Here you need to enter the title of song or book you are looking for.
 * If the file is not present on local server, it will display message "File not found on local server" and download it directly from the main server and will display message "Downloaded from server".
 
-<img width="674" alt="2019-11-19 (5)" src="https://user-images.githubusercontent.com/55159894/69185407-b3961480-0ae4-11ea-9ccc-306250ffc606.png
+![1214](https://user-images.githubusercontent.com/55159894/69186510-9eba8080-0ae6-11ea-85b7-74cae69583b4.jpg)
 
 * If the file is present with the peer (on local network), it will be downloaded from the peer.
 
