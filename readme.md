@@ -13,5 +13,5 @@ To run this application, it is necessary to install Elixir on the desktop. You c
 * Step 2: In any terminal, get to the folder in which the repository is downloaded.
 * Step 3: Type UI.start
 * Step 4: Type iex --sname yourname@localhost --cookie token --mix              (yourname is any name you want to type)
-
+* ![tekst alternatywny](ścieżka/do/pliku)
 
