@@ -7,8 +7,16 @@ defmodule FS do
 
   def remote_read_file(file_name) do
     path = Path.expand('~')
-    file = File.read!('#{path}/.songs/#{file_name}')
-    {file_name, file}
+    isDir = File.dir?('#{path}/.songs/#{file_name}')
+    case isDir do
+      true ->
+        file_list = File.ls!('#{path}/.songs/#{file_name}')
+        files = Enum.map(file_list, fn file -> %{file_name: file, file: File.read!('#{path}/.songs/#{file_name}/#{file}')} end)
+        {file_name, files, isDir }
+      false ->
+        files = [%{file_name: file_name, file: File.read!('#{path}/.songs/#{file_name}')}]
+        {file_name, files, isDir }
+    end
   end
 
   @doc """
@@ -17,9 +25,18 @@ defmodule FS do
   """
   def write_file(response) do
     # example working code to write the file in tmp folder
-    {file_name, file} = response
+    {file_name, files, isDir } = response
     path = Path.expand('~')
-    File.write!('#{path}/.songs/#{file_name}', file)
+    case isDir do
+      true ->
+        case File.mkdir('#{path}/.songs/#{file_name}') do
+          _ -> IO.puts("folder exists")
+        end
+        Enum.map(files, fn file -> File.write!('#{path}/.songs/#{file_name}/#{file[:file_name]}', file[:file]) end)
+      false ->
+        file = List.first(files)
+        File.write!('#{path}/.songs/#{file_name}', file[:file])
+    end
   end
 
   def search_network(requested_audio) do

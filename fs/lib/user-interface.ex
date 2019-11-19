@@ -15,24 +15,24 @@ defmodule UI do
 		handle_response(response)
 
 		:exit->
-		IO.puts("Thank you, applcation shutting down.")	
+		IO.puts("Thank you, applcation shutting down.")
 		end
 	end
 
 	def handle_response(r) do
 		case r do
-		
+
 		"download"-> download()
 		get_response(:continue)
 
-		"help" -> IO.puts("download: Attempted to download audio file.")	
-		IO.puts("help: List possible commands.")	
-		IO.puts("list-files: List local audio files.")	
-		IO.puts("exit: Quit the application.")	
+		"help" -> IO.puts("download: Attempted to download audio file.")
+		IO.puts("help: List possible commands.")
+		IO.puts("list-files: List local audio files.")
+		IO.puts("exit: Quit the application.")
 		get_response(:continue)
 
 		"list-files" -> IO.puts("Audio Files:")
-		IO.puts("Artist/Author,Title")	
+		IO.puts("Artist/Author,Title")
     path = Path.expand('~')
 		IO.puts(File.read!("#{path}/.songs.csv"))
 		File.close("#{path}/.songs.csv")
@@ -48,21 +48,21 @@ defmodule UI do
 	def download() do
 	#Function to download song from either server or local network.
 	artist = IO.gets("Enter artist/author name: ")
-	artist = String.trim(artist) 
+	artist = String.trim(artist)
 	song = IO.gets("Enter song/book title: ")
-	song = String.trim(song) 
+	song = String.trim(song)
 
 	#Try to search local network for file
 	cluster_response = FS.search_network(%{Artist: "#{artist}", Song: "#{song}"})
 	case cluster_response do
-		:ok -> IO.puts("File found on local network") 
+		{:ok} -> IO.puts("File found on local network")
 		:SONG_NOT_FOUND ->
-			IO.puts("File not found on local network") 
+			IO.puts("File not found on local network")
 			#Download file from server
 			FS.Client.server_download(artist,song)
 		_->IO.puts("Possible error has occured please try again.")
 	end
 	end
-	
+
 
 end

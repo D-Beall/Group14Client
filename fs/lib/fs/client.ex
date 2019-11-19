@@ -3,7 +3,7 @@ defmodule FS.Client do
 	@doc """
 	Attempts to call http request to the server.
 	Requests the urls to use to request a file from the server.
-	
+
 	artist- string of artist/author name.
 	song- string of title of song/book etc.
 	"""
@@ -17,6 +17,7 @@ defmodule FS.Client do
 			case resp_length do
 				0->IO.puts("Artist/Title combination not found on server.")
 				_->get_files(resp,resp_length) 
+				IO.puts("Downloaded from server.")
 			end
 			{:error, reason}->IO.inspect(reason)
 		end
@@ -27,7 +28,7 @@ defmodule FS.Client do
 	files-List of dictionaries with files to call get request on.
 	size- Length of files if 1 don't make directory in .songs.
 	file- artist: url: title:
-	"""	
+	"""
 	def get_files(files,size) do
 		title = List.first(files)["title"]
 		artist = List.first(files)["artist"]
@@ -52,7 +53,7 @@ defmodule FS.Client do
 						{:ok, %HTTPoison.Response{status_code: 200, body: body}}->
 						File.touch("#{path}/.songs/#{file_name}")
 						f = File.open!("#{path}/.songs/#{file_name}",[:write])
-						IO.binwrite(f,body)	
+						IO.binwrite(f,body)
 
 						{:error, %HTTPoison.Error{reason: reason}}->IO.inspect(reason)
 					end
@@ -60,12 +61,12 @@ defmodule FS.Client do
 					File.rename("#{path}/.songs/#{file_name}","#{path}/.songs/#{artist}-#{title}.#{file_extension}")
 
 					#Multi file/book
-					_-> 
+					_->
 					case HTTPoison.get(url) do
 						{:ok, %HTTPoison.Response{status_code: 200, body: body}}->
 						File.touch("#{path}/.songs/#{artist}-#{title}/#{file_name}")
 						f = File.open!("#{path}/.songs/#{artist}-#{title}/#{file_name}",[:write])
-						IO.binwrite(f,body)	
+						IO.binwrite(f,body)
 
 						{:error, %HTTPoison.Error{reason: reason}}->IO.inspect(reason)
 					end
@@ -76,5 +77,4 @@ defmodule FS.Client do
 				#Update .songs.csv
 				SongCollection.write(%{Artist: "#{artist}", Song: "#{title}"})
 	end
-
 end
