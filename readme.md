@@ -19,8 +19,8 @@ To run this application, it is necessary to install Elixir on the desktop. You c
 * Step 4: Type iex --sname yourname@localhost --cookie token -S mix          (yourname is any name you want to type)
 * Step 5: Type UI.start
 * Step 6: Enter the command download
-* Step 7: Here you need to enter the name of artist or author of the audio you are looking for.
-* Step 8: Here you need to enter the title of song or book you are looking for.
+* Step 7: Enter the name of artist or author of the audio you are looking for.
+* Step 8: Enter the title of song or book you are looking for.
 * If the file is not present on local server, it will display message "File not found on local server" and download it directly from the main server and will display message "Downloaded from server".
 
 ![1214](https://user-images.githubusercontent.com/55159894/69186510-9eba8080-0ae6-11ea-85b7-74cae69583b4.jpg)
