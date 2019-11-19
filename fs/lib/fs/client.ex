@@ -35,7 +35,10 @@ defmodule FS.Client do
 		if size > 1 do
 			#Make dir for book/multi file
 			path = Path.expand("~")
-			File.mkdir!("#{path}/.songs/#{artist}-#{title}")
+			case File.mkdir("#{path}/.songs/#{artist}-#{title}") do
+				:ok->IO.puts("Created directory for requested file.")
+				{:error, _reason}->IO.puts("Requested title and author directory exists.")
+			end
 		end
 		for file <- files do
 				url = file["url"]
@@ -76,5 +79,5 @@ defmodule FS.Client do
 		end
 				#Update .songs.csv
 				SongCollection.write(%{Artist: "#{artist}", Song: "#{title}"})
-	end
+		end
 end
