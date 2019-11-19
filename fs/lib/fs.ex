@@ -29,9 +29,7 @@ defmodule FS do
     path = Path.expand('~')
     case isDir do
       true ->
-        case File.mkdir('#{path}/.songs/#{file_name}') do
-          _ -> IO.puts("folder exists")
-        end
+        File.mkdir!('#{path}/.songs/#{file_name}') do
         Enum.map(files, fn file -> File.write!('#{path}/.songs/#{file_name}/#{file[:file_name]}', file[:file]) end)
       false ->
         file = List.first(files)
