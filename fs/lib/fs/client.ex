@@ -108,34 +108,55 @@ defmodule FS.Client do
 	file- artist: url: title:
 	"""	
 	def get_files(files,size) do
+		IO.puts("********** GET FILES **************")
 		title = List.first(files)["title"]
 		artist = List.first(files)["artist"]
 		if size > 1 do
+			#Make dir for book/multi file
 			path = Path.expand("~")
-			System.cmd("mkdir", ["#{path}/.songs/#{title}"])
+			File.mkdir!("#{path}/.songs/#{title}")
 		end
 		for file <- files do
 				url = file["url"]
+				#Send GET request
 				file_name = String.split(url,"/")
 				file_name = List.last(file_name)
 				id = Enum.at(String.split(file_name,"-"), 1) #get book id
+				IO.puts(id)
 				file_extension = List.last(String.split(file_name, "."))
 				path = Path.expand("~")
 				#Download song from server
 				case size do
-					1-> System.cmd("wget",["-N","-P","#{path}/.songs/",url])
+					1->
+					case HTTPoison.get(url) do
+						{:ok, %HTTPoison.Response{status_code: 200, body: body}}->
+						File.touch("#{path}/.songs/#{file_name}")
+						f = File.open!("#{path}/.songs/#{file_name}",[:write])
+						IO.binwrite(f,body)	
+
+						{:error, %HTTPoison.Error{reason: reason}}->IO.inspect(reason)
+					end
+					#Rename file
+					File.rename("#{path}/.songs/#{file_name}","#{path}/.songs/#{artist}-#{title}.#{file_extension}")
+
 					_-> 
-				System.cmd("wget",["-N","-P","#{path}/.songs/#{title}",url])
+					case HTTPoison.get(url) do
+						{:ok, %HTTPoison.Response{status_code: 200, body: body}}->
+						File.touch("#{path}/.songs/#{title}/#{file_name}")
+						f = File.open!("#{path}/.songs/#{title}/#{file_name}",[:write])
+						IO.binwrite(f,body)	
+
+						{:error, %HTTPoison.Error{reason: reason}}->IO.inspect(reason)
+					end
+					File.rename("#{path}/.songs/#{title}/#{file_name}","#{path}/.songs/#{title}/#{artist}-#{title}-#{id}.#{file_extension}")
+
 				end
-				##Rename file
-				#System.cmd("cp",["#{path}/.songs/#{file_name}","#{path}/.songs/#{artist}-#{song}.#{file_extension}"])
-				##Delete original file from server
-				#System.cmd("rm", ["#{path}/.songs/#{file_name}"])
-				##Update .songs.csv
-				IO.puts("Artist: #{artist}, Title: #{title}")
+				IO.puts("Artist: #{artist}, Title: #{title}")#TODO Delete
 		end
+				#Update .songs.csv
 				SongCollection.write(%{Artist: "#{artist}", Song: "#{title}"})
 #		Mint.HTTP.close(conn)
+		IO.puts("********** GET FILES END **************")
 	end
 
 end
