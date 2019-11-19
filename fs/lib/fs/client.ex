@@ -50,22 +50,6 @@ defmodule FS.Client do
 		end
 	end
 
-	def get do
-		#connect to server
-		{:ok, conn} = Mint.HTTP.connect(:http, "xzy3.cs.seas.gwu.edu", 8085)
-		#read audio name from user
-		audioName = IO.gets("Enter name of file: ")
-		IO.puts(audioName) #TEMP
-		#send request
-		{:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/hello", [], "")
-		#receive message
-		receive do
-			message ->
-				{:ok, _conn, responses} = Mint.HTTP.stream(conn, message)
-				handle_responses(responses,{:get},{})
-		end
-		Mint.HTTP.close(conn)
-	end
 
 	@doc """
 	Attempts to call http request to the server.
@@ -78,26 +62,33 @@ defmodule FS.Client do
 		IO.puts("Server download.")
 		list = [song_name: "#{song}", artist: "#{artist}"]
 		{_status, result} = JSON.encode(list)
-		#connect to server
-		server_conn = Mint.HTTP.connect(:http, "xzy3.cs.seas.gwu.edu", 8085)
-		case server_conn do
-			{:ok, conn}->
-				#send post request with json data
-				{:ok, conn, _request_ref} = Mint.HTTP.request(conn, "POST", "/download", [{"content-type", "application/json"}], result)
-				#receive message
-				receive do
-					message ->
-					x = Mint.HTTP.stream(conn, message)
-						case x do
-							{:ok, _conn, responses}->handle_responses(responses,{:download},%{Artist: "#{artist}", Song: "#{song}"})
-
-							{:error, _conn, reason, _responses}->IO.inspect(reason)
-
-							:unkown->IO.puts("Message is not from conn socket.")
-						end
-				end
-			{:error, _reason}->IO.puts("Error received. Can not connect to server.")
+		case HTTPoison.post("xzy3.cs.seas.gwu.edu:8085/download",result) do
+			{:ok, %HTTPoison.Response{status_code: 200, body: body}}->
+			resp = JSON.decode!(body)
+			IO.puts(length(resp))
+			get_files(resp,length(resp)) 
+			{:error, reason}->IO.inspect(reason)
 		end
+		#connect to server
+		#server_conn = Mint.HTTP.connect(:http, "xzy3.cs.seas.gwu.edu", 8085)
+		#case server_conn do
+		#	{:ok, conn}->
+		#		#send post request with json data
+		#		{:ok, conn, _request_ref} = Mint.HTTP.request(conn, "POST", "/download", [{"content-type", "application/json"}], result)
+		#		#receive message
+		#		receive do
+		#			message ->
+		#			x = Mint.HTTP.stream(conn, message)
+		#				case x do
+		#					{:ok, _conn, responses}->handle_responses(responses,{:download},%{Artist: "#{artist}", Song: "#{song}"})
+
+		#					{:error, _conn, reason, _responses}->IO.inspect(reason)
+
+		#					:unkown->IO.puts("Message is not from conn socket.")
+		#				end
+		#		end
+		#	{:error, _reason}->IO.puts("Error received. Can not connect to server.")
+		#end
 	end
 
 	@doc """
