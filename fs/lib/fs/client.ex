@@ -28,7 +28,6 @@ defmodule FS.Client do
 				{:download} ->
 				#Resp contains list of dictionaries
 				resp = JSON.decode!(data)
-				IO.inspect(resp)
 				size = Kernel.length(resp)
 				case size do
 					0 -> IO.puts("No such audio file on server.")
@@ -114,19 +113,21 @@ defmodule FS.Client do
 		if size > 1 do
 			#Make dir for book/multi file
 			path = Path.expand("~")
-			File.mkdir!("#{path}/.songs/#{title}")
+			File.mkdir!("#{path}/.songs/#{artist}-#{title}")
 		end
 		for file <- files do
 				url = file["url"]
 				#Send GET request
 				file_name = String.split(url,"/")
 				file_name = List.last(file_name)
-				id = Enum.at(String.split(file_name,"-"), 1) #get book id
-				IO.puts(id)
+				IO.puts("file_name: #{file_name}")
+				id = Enum.at(String.split(file_name,"_"), 1) #get book id
+				IO.puts("ID: #{id}")
 				file_extension = List.last(String.split(file_name, "."))
 				path = Path.expand("~")
 				#Download song from server
 				case size do
+					#Single file
 					1->
 					case HTTPoison.get(url) do
 						{:ok, %HTTPoison.Response{status_code: 200, body: body}}->
@@ -139,16 +140,17 @@ defmodule FS.Client do
 					#Rename file
 					File.rename("#{path}/.songs/#{file_name}","#{path}/.songs/#{artist}-#{title}.#{file_extension}")
 
+					#Multi file/book
 					_-> 
 					case HTTPoison.get(url) do
 						{:ok, %HTTPoison.Response{status_code: 200, body: body}}->
-						File.touch("#{path}/.songs/#{title}/#{file_name}")
-						f = File.open!("#{path}/.songs/#{title}/#{file_name}",[:write])
+						File.touch("#{path}/.songs/#{artist}-#{title}/#{file_name}")
+						f = File.open!("#{path}/.songs/#{artist}-#{title}/#{file_name}",[:write])
 						IO.binwrite(f,body)	
 
 						{:error, %HTTPoison.Error{reason: reason}}->IO.inspect(reason)
 					end
-					File.rename("#{path}/.songs/#{title}/#{file_name}","#{path}/.songs/#{title}/#{artist}-#{title}-#{id}.#{file_extension}")
+					File.rename("#{path}/.songs/#{artist}-#{title}/#{file_name}","#{path}/.songs/#{artist}-#{title}/#{artist}-#{title}-#{id}.#{file_extension}")
 
 				end
 				IO.puts("Artist: #{artist}, Title: #{title}")#TODO Delete
