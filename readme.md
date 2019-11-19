@@ -11,3 +11,8 @@ Database: Sqlite3
 Library for Backend: SqliteX, Plug, Json, Poison
 ### Prerequisits
 To run this application, it is necessary to install Elixir on the desktop. You can download Elixir here: https://elixir-lang.org/install.html
+### How to use?
+Step 1: After downloading Elixir, you need to clone our git repository. The link to download is here: https://github.com/D-Beall/Group14Client
+Step 2: In any terminal, get to the folder in which the repository is downloaded.
+Step 3: Type UI.start
+Step 4: Type iex --sname yourname@localhost --cookie token --mix   (yourname is any name you want to type)
