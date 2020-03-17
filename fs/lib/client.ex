@@ -10,13 +10,13 @@ defmodule FS.Client do
 	def server_download(artist, song) do
 		list = [song_name: "#{song}", artist: "#{artist}"]
 		{_status, result} = JSON.encode(list)
-		case HTTPoison.post("xzy3.cs.seas.gwu.edu:8085/download",result) do
+		case HTTPoison.post("localhost:8085/download",result) do
 			{:ok, %HTTPoison.Response{status_code: 200, body: body}}->
 			resp = JSON.decode!(body)
 			resp_length = length(resp)
 			case resp_length do
 				0->IO.puts("Artist/Title combination not found on server.")
-				_->get_files(resp,resp_length) 
+				_->get_files(resp,resp_length)
 				IO.puts("Downloaded from server.")
 			end
 			{:error, reason}->IO.inspect(reason)
